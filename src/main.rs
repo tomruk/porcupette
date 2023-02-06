@@ -42,7 +42,7 @@ fn main() {
     let notify = |prompt: &str, timeout: Duration| {
         if config.notify {
             Notification::new()
-                .appname("porcupette")
+                .appname("Porcupette")
                 .body(prompt)
                 .timeout(timeout)
                 .show()
@@ -53,7 +53,7 @@ fn main() {
     let enotify = |prompt: &str, timeout: Duration| {
         if config.notify {
             Notification::new()
-                .appname("porcupette")
+                .appname("Porcupette")
                 .summary("Error!")
                 .body(prompt)
                 .timeout(timeout)

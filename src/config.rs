@@ -2,6 +2,8 @@ use eyre::eyre;
 use serde::{Deserialize, Serialize};
 use std::fs::OpenOptions;
 
+use crate::util::{is_default_browser, set_default_browser};
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
     pub notify: bool,
@@ -11,13 +13,36 @@ pub struct Config {
 
 pub fn config_wizard() -> eyre::Result<()> {
     let mut rl = rustyline::Editor::<()>::new()?;
+
+    println!("Configuring Porcupette\n");
+
+    let prompt = if is_default_browser()? {
+        "Porcupette is your default browser. Would you still like to set it as your default browser? y/N "
+    } else {
+        "Porcupette isn't your default browser. Would you like to set it as your default browser? y/N "
+    };
+
+    loop {
+        let line = rl.readline(prompt)?;
+        let line = line.trim();
+
+        if line == "y" || line == "Y" {
+            set_default_browser()?;
+            break;
+        } else if line == "n" || line == "N" || line == "" {
+            break;
+        }
+
+        println!("Invalid input. Y or N needed");
+    }
+
     let mut config = Config {
         notify: false,
         run_command: false,
         command: String::new(),
     };
 
-    println!("Configuring porcupette\n\nWhat should I do with the URL?\n");
+    println!("\nWhat should I do with the URL?\n");
 
     loop {
         let line = rl.readline("1: Copy to clipboard\n2: Run a command\n\nChoose: 1 or 2 ")?;
