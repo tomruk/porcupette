@@ -125,6 +125,10 @@ fn copy_to_clipboard(url: String) -> eyre::Result<()> {
 
 fn is_http_or_file(url: &str) -> bool {
     let url = url.to_lowercase();
+
+    // In Porcupine, file:/// protocol is omitted, but Porcupette doesn't do that.
+    // An attacker might be trying you to execute a local file (somehow) downloaded from web. This seems very unlikely, but still a consideration.
+
     if url.starts_with("http://") || url.starts_with("https://") || url.starts_with("file://") {
         return true;
     }
