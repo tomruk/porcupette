@@ -16,24 +16,29 @@ pub fn config_wizard() -> eyre::Result<()> {
 
     println!("Configuring Porcupette\n");
 
-    let prompt = if is_default_browser()? {
-        "Porcupette is your default browser. Would you still like to set it as your default browser? y/N "
-    } else {
-        "Porcupette isn't your default browser. Would you like to set it as your default browser? y/N "
-    };
+    match is_default_browser() {
+        Ok(v) => {
+            let prompt = if v {
+                "Porcupette is your default browser. Would you still like to set it as your default browser? y/N "
+            } else {
+                "Porcupette is not your default browser. Would you like to set it as your default browser? y/N "
+            };
 
-    loop {
-        let line = rl.readline(prompt)?;
-        let line = line.trim();
+            loop {
+                let line = rl.readline(prompt)?;
+                let line = line.trim();
 
-        if line == "y" || line == "Y" {
-            set_default_browser()?;
-            break;
-        } else if line == "n" || line == "N" || line == "" {
-            break;
+                if line == "y" || line == "Y" {
+                    set_default_browser()?;
+                    break;
+                } else if line == "n" || line == "N" || line == "" {
+                    break;
+                }
+
+                println!("Invalid input. Y or N needed");
+            }
         }
-
-        println!("Invalid input. Y or N needed");
+        Err(e) => println!("Couldn't determine whether Porcupette is set as the default browser or not. Error: {e}"),
     }
 
     let mut config = Config {
