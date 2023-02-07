@@ -21,3 +21,7 @@ Test porcupette with a URL:
 ```
 porcupette https://www.youtube.com/watch?v=KMU0tzLwhbE
 ```
+
+## Development
+
+One thing to keep in mind is that on Linux, porcupette creates a desktop file at `~/.local/share/applications/porcupette.desktop`. If you're debugging porcupette, make sure to set an absolute path in the `Exec` directive.
