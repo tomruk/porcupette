@@ -127,8 +127,10 @@ pub fn read_config() -> eyre::Result<Config> {
         "./porcupette.yml".to_string()
     } else {
         let mut home = dirs::home_dir().ok_or(eyre!("home directory couldn't be found"))?;
-        home = home.join(".config/porcupette.yml");
-        home.to_str().unwrap().to_string()
+        home.join(".config/porcupette.yml")
+            .to_str()
+            .unwrap()
+            .to_string()
     };
     let config = config::Config::builder()
         .add_source(config::File::with_name(&config_path))
