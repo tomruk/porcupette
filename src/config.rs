@@ -38,7 +38,11 @@ pub fn config_wizard() -> eyre::Result<()> {
                 println!("Invalid input. Y or N needed");
             }
         }
-        Err(e) => println!("Couldn't determine whether Porcupette is set as the default browser or not. Error: {e}"),
+        Err(e) => {
+            println!("Couldn't determine whether Porcupette is set as the default browser or not.");
+            println!("Error: {e}");
+            println!("Try to manually set the porcupette executable as your default browser. If you cannot, please open an issue on GitHub.\n");
+        }
     }
 
     let mut config = Config {
