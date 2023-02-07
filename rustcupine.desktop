@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Porcupette
+Exec=porcupette %U
+Categories=Network;WebBrowser;
+MimeType=x-scheme-handler/http;x-scheme-handler/https;
+NoDisplay=true
+Type=Application
+Terminal=false
