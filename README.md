@@ -6,7 +6,7 @@ Porcupette is [Porcupine](https://github.com/micahflee/porcupine), but with Rust
 
 ## Prerequisites
 
-Porcupette is tested and supported on Linux. `xdg-settings` (as part of the `xdg-utils` package) is needed (but not required) to set porcupette as your default browser on Linux systems.
+Porcupette was tested and supported on Linux GNOME (X11 and Wayland). `xdg-settings` (as part of the `xdg-utils` package) is needed (but not required) to set porcupette as your default browser on Linux systems.
 
 ## Usage
 
