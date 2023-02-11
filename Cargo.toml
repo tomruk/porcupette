@@ -12,7 +12,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
 copypasta = "0.8"
 eyre = "0.6"
+color-eyre = { version = "0.6.2", default-features = false, features = ["track-caller"] }
 rustyline = "10"
 dirs = "4"
 execute = "0.2"
-color-eyre = { version = "0.6.2", default-features = false, features = ["track-caller"] }

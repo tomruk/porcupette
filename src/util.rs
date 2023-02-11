@@ -30,7 +30,7 @@ pub fn is_default_browser() -> eyre::Result<bool> {
 pub fn set_default_browser() -> eyre::Result<()> {
     let desktop_file_content = include_str!("../porcupette.desktop");
 
-    let mut home = dirs::home_dir().ok_or(eyre!("home directory couldn't be found"))?;
+    let home = dirs::home_dir().ok_or(eyre!("home directory couldn't be found"))?;
     let local_share_applications = home.join(".local/share/applications");
     create_dir_all(&local_share_applications)?;
 

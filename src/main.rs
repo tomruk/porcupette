@@ -1,3 +1,4 @@
+use color_eyre::config::HookBuilder;
 use copypasta::ClipboardProvider;
 use eyre::eyre;
 use notify_rust::Notification;
@@ -11,8 +12,14 @@ mod config;
 mod util;
 
 fn main() {
+    HookBuilder::new()
+        .display_env_section(false)
+        .display_location_section(false)
+        .install()
+        .unwrap();
+
     let url = std::env::args().nth(1).unwrap_or_else(|| {
-        config_wizard().unwrap_or_else(|e| {
+        if let Err(e) = config_wizard() {
             if let Some(e) = e.downcast_ref::<ReadlineError>() {
                 match e {
                     ReadlineError::Eof | ReadlineError::Interrupted => {
@@ -22,16 +29,17 @@ fn main() {
                     _ => {}
                 }
             }
-            eprintln!("Error: {e}");
+
+            eprintln!("Error: {:?}", e);
             exit(1);
-        });
+        }
         exit(0);
     });
 
     let config = match read_config() {
         Ok(config) => config,
         Err(e) => {
-            eprintln!("Error: {e}");
+            eprintln!("Error: {:?}", e);
             exit(1);
         }
     };
@@ -40,6 +48,7 @@ fn main() {
     let twelvesecs = Duration::from_secs(5);
 
     let notify = |prompt: &str, timeout: Duration| {
+        println!("{prompt}");
         if config.notify {
             Notification::new()
                 .appname("Porcupette")
@@ -51,6 +60,7 @@ fn main() {
     };
 
     let enotify = |prompt: &str, timeout: Duration| {
+        eprintln!("{prompt}");
         if config.notify {
             Notification::new()
                 .appname("Porcupette")
@@ -63,37 +73,28 @@ fn main() {
     };
 
     if !is_http_or_file(&url) {
-        eprintln!(
-            "The protocol of the URL '{url}' is not one of these types:\nhttp://\nhttps://\nfile://\n"
-        );
-        eprintln!("No operation was done");
-        enotify(format!("The protocol of the URL '{url}' is not one of these types:\nhttp://\nhttps://\nfile://\n").as_str(), twelvesecs);
-        enotify("No operation was done", twelvesecs);
+        enotify(format!("The protocol of the URL '{url}' is not one of these types:\nhttp://\nhttps://\nfile://\n\nNo operation was done").as_str(), twelvesecs);
         exit(1);
     }
 
     if config.run_command {
-        run_command(url, config.command).unwrap_or_else(|e| {
-            eprintln!("Error while executing the command: {e}");
+        if let Err(e) = run_command(url, config.command) {
             enotify(
                 format!("Error while executing the command: {e}").as_str(),
                 twelvesecs,
             );
             exit(2);
-        });
+        };
         notify("Command execution was successful", twosecs);
-        println!("Command execution was successful");
     } else {
         copy_to_clipboard(url).unwrap_or_else(|e| {
-            eprintln!("Error while copying to clipboard: {e}");
             enotify(
                 format!("Error while copying to clipboard: {e}").as_str(),
                 twelvesecs,
             );
             exit(2);
         });
-        notify("Copied the provided URL to clipboard", twosecs);
-        println!("Copied the provided URL to clipboard");
+        notify("Copied to clipboard", twosecs);
     }
 }
 
@@ -105,10 +106,10 @@ fn run_command(url: String, mut command: String) -> eyre::Result<()> {
     let exit_status = execute::command(command).status()?;
     if !exit_status.success() {
         if let Some(code) = exit_status.code() {
-            return Err(eyre!("command was quit with status code {code}"));
+            return Err(eyre!("Command was quit with status code {code}"));
         }
         return Err(eyre!(
-            "command was quit but status code couldn't be retrieved"
+            "Command was quit but status code couldn't be retrieved"
         ));
     }
     Ok(())

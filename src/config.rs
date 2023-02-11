@@ -1,4 +1,4 @@
-use eyre::eyre;
+use eyre::{eyre, Context};
 use serde::{Deserialize, Serialize};
 use std::fs::OpenOptions;
 
@@ -91,19 +91,21 @@ pub fn config_wizard() -> eyre::Result<()> {
     }
 
     let f = if cfg!(windows) {
+        let config_path = "./porcupette.yml";
         match OpenOptions::new()
             .write(true)
             .truncate(true)
             .append(false)
-            .open("./porcupette.yml")
+            .open(config_path)
+            .wrap_err_with(|| format!("Failed to create/open {config_path}"))
         {
             Ok(f) => f,
             Err(e) => return Err(e.into()),
         }
     } else {
-        let mut home = dirs::home_dir().ok_or(eyre!("home directory couldn't be found"))?;
-        home = home.join(".config/porcupette.yml");
-        let home = home.to_str().unwrap();
+        let home = dirs::home_dir().ok_or(eyre!("home directory couldn't be found"))?;
+        let config_path = home.join(".config/porcupette.yml");
+        let config_path = config_path.to_str().unwrap();
 
         match OpenOptions::new()
             .create(true)
@@ -111,6 +113,7 @@ pub fn config_wizard() -> eyre::Result<()> {
             .truncate(true)
             .append(false)
             .open(home)
+            .wrap_err_with(|| format!("Failed to create/open: {config_path}"))
         {
             Ok(f) => f,
             Err(e) => return Err(e.into()),
@@ -126,7 +129,7 @@ pub fn read_config() -> eyre::Result<Config> {
     let config_path = if cfg!(windows) {
         "./porcupette.yml".to_string()
     } else {
-        let mut home = dirs::home_dir().ok_or(eyre!("home directory couldn't be found"))?;
+        let home = dirs::home_dir().ok_or(eyre!("home directory couldn't be found"))?;
         home.join(".config/porcupette.yml")
             .to_str()
             .unwrap()
