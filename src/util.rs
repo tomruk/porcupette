@@ -1,4 +1,5 @@
 use eyre::eyre;
+use std::env;
 use std::fs::create_dir_all;
 use std::{fs::OpenOptions, io::Write, process::Command};
 
@@ -29,6 +30,10 @@ pub fn is_default_browser() -> eyre::Result<bool> {
 
 pub fn set_default_browser() -> eyre::Result<()> {
     let desktop_file_content = include_str!("../porcupette.desktop");
+    let current_exe = env::current_exe()?;
+    let current_exe = current_exe.to_str().unwrap();
+    let desktop_file_content =
+        desktop_file_content.replace("COMMAND_HERE", &format!("{current_exe} %U"));
 
     let home = dirs::home_dir().ok_or(eyre!("home directory couldn't be found"))?;
     let local_share_applications = home.join(".local/share/applications");

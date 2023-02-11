@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Porcupette
-Exec=porcupette %U
+Exec=COMMAND_HERE
 Categories=Network;WebBrowser;
 MimeType=x-scheme-handler/http;x-scheme-handler/https;
 NoDisplay=true
