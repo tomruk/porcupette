@@ -112,7 +112,7 @@ pub fn config_wizard() -> eyre::Result<()> {
             .write(true)
             .truncate(true)
             .append(false)
-            .open(home)
+            .open(config_path)
             .wrap_err_with(|| format!("Failed to create/open: {config_path}"))
         {
             Ok(f) => f,
