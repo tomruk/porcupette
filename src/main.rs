@@ -73,14 +73,14 @@ fn main() {
     };
 
     if !is_http_or_file(&url) {
-        enotify(format!("The protocol of the URL '{url}' is not one of these types:\nhttp://\nhttps://\nfile://\n\nNo operation was done").as_str(), notify_long);
+        enotify(&format!("The protocol of the URL '{url}' is not one of these types:\nhttp://\nhttps://\nfile://\n\nNo operation was done"), notify_long);
         exit(1);
     }
 
     if config.run_command {
         if let Err(e) = run_command(url, config.command) {
             enotify(
-                format!("Error while executing the command: {e}").as_str(),
+                &format!("Error while executing the command: {e}"),
                 notify_long,
             );
             exit(2);
@@ -89,7 +89,7 @@ fn main() {
     } else {
         copy_to_clipboard(url).unwrap_or_else(|e| {
             enotify(
-                format!("Error while copying to clipboard: {e}").as_str(),
+                &format!("Error while copying to clipboard: {e}"),
                 notify_long,
             );
             exit(2);
