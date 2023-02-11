@@ -44,8 +44,8 @@ fn main() {
         }
     };
 
-    let twosecs = Duration::from_secs(2);
-    let twelvesecs = Duration::from_secs(5);
+    let notify_short = Duration::from_secs(2);
+    let notify_long = Duration::from_secs(12);
 
     let notify = |prompt: &str, timeout: Duration| {
         println!("{prompt}");
@@ -73,7 +73,7 @@ fn main() {
     };
 
     if !is_http_or_file(&url) {
-        enotify(format!("The protocol of the URL '{url}' is not one of these types:\nhttp://\nhttps://\nfile://\n\nNo operation was done").as_str(), twelvesecs);
+        enotify(format!("The protocol of the URL '{url}' is not one of these types:\nhttp://\nhttps://\nfile://\n\nNo operation was done").as_str(), notify_long);
         exit(1);
     }
 
@@ -81,20 +81,20 @@ fn main() {
         if let Err(e) = run_command(url, config.command) {
             enotify(
                 format!("Error while executing the command: {e}").as_str(),
-                twelvesecs,
+                notify_long,
             );
             exit(2);
         };
-        notify("Command execution was successful", twosecs);
+        notify("Command execution was successful", notify_short);
     } else {
         copy_to_clipboard(url).unwrap_or_else(|e| {
             enotify(
                 format!("Error while copying to clipboard: {e}").as_str(),
-                twelvesecs,
+                notify_long,
             );
             exit(2);
         });
-        notify("Copied to clipboard", twosecs);
+        notify("Copied to clipboard", notify_short);
     }
 }
 
