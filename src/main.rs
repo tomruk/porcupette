@@ -99,17 +99,19 @@ fn main() {
 }
 
 fn run_command(url: String, mut command: String) -> eyre::Result<()> {
-    println!("Running: {}", command);
-    command.find("%U").ok_or(eyre!("%U wasn't found"))?;
+    println!("Executing: {}", command);
+    command
+        .find("%U")
+        .ok_or(eyre!("%U couldn't be found in the URL"))?;
     command = command.replacen("%U", &url, 1);
 
     let exit_status = execute::command(command).status()?;
     if !exit_status.success() {
         if let Some(code) = exit_status.code() {
-            return Err(eyre!("Command was quit with status code {code}"));
+            return Err(eyre!("Command exited with status code {code}"));
         }
         return Err(eyre!(
-            "Command was quit but status code couldn't be retrieved"
+            "Command exited but status code couldn't be retrieved"
         ));
     }
     Ok(())
@@ -127,7 +129,7 @@ fn copy_to_clipboard(url: String) -> eyre::Result<()> {
 fn is_http_or_file(url: &str) -> bool {
     let url = url.to_lowercase();
 
-    // In Porcupine, file:/// protocol is omitted, but Porcupette doesn't do that.
+    // In Porcupine, file:/// protocol is omitted, but Porcupette includes the file protocol.
     // An attacker might be trying you to execute a local file (somehow) downloaded from web. This seems very unlikely, but still a consideration.
 
     if url.starts_with("http://") || url.starts_with("https://") || url.starts_with("file://") {

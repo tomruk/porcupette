@@ -18,30 +18,32 @@ pub fn config_wizard() -> eyre::Result<()> {
 
     match is_default_browser() {
         Ok(v) => {
-            let prompt = if v {
-                "Porcupette is your default browser. Would you still like to set it as your default browser? y/N "
+            let (prompt, default_yes) = if v {
+                ("Porcupette is your default browser. Would you still like to set it as your default browser? y/N ", false)
             } else {
-                "Porcupette is not your default browser. Would you like to set it as your default browser? y/N "
+                ("Porcupette is not your default browser. Would you like to set it as your default browser? Y/n ", true)
             };
 
             loop {
                 let line = rl.readline(prompt)?;
                 let line = line.trim();
 
-                if line == "y" || line == "Y" {
+                if line == "y" || line == "Y" || (line == "" && default_yes) {
                     set_default_browser()?;
                     break;
-                } else if line == "n" || line == "N" || line == "" {
+                } else if line == "n" || line == "N" || (line == "" && !default_yes) {
                     break;
                 }
 
-                println!("Invalid input. Y or N needed");
+                println!("Invalid input. y or n needed");
             }
         }
         Err(e) => {
-            println!("Couldn't determine whether Porcupette is set as the default browser or not.");
-            println!("Error: {e}");
-            println!("Try to manually set the porcupette executable as your default browser. If you cannot, please open an issue on GitHub.\n");
+            eprintln!(
+                "Couldn't determine whether Porcupette is set as the default browser or not."
+            );
+            eprintln!("Error: {:?}", e);
+            eprintln!("Try to manually set the porcupette executable as your default browser. If you cannot, please open an issue on GitHub.\n");
         }
     }
 
@@ -54,7 +56,7 @@ pub fn config_wizard() -> eyre::Result<()> {
     println!("\nWhat should I do with the URL?\n");
 
     loop {
-        let line = rl.readline("1: Copy to clipboard\n2: Run a command\n\nChoose: 1 or 2 ")?;
+        let line = rl.readline("1: Copy to clipboard\n2: Run a command\n\n1 or 2: ")?;
         let line = line.trim();
 
         if line == "1" {
@@ -87,7 +89,7 @@ pub fn config_wizard() -> eyre::Result<()> {
             break;
         }
 
-        println!("Invalid input. Y or N needed");
+        println!("Invalid input. y or n needed");
     }
 
     let f = if cfg!(windows) {
@@ -97,13 +99,13 @@ pub fn config_wizard() -> eyre::Result<()> {
             .truncate(true)
             .append(false)
             .open(config_path)
-            .wrap_err_with(|| format!("Failed to create/open {config_path}"))
+            .wrap_err(format!("Failed to create/open {config_path}"))
         {
             Ok(f) => f,
             Err(e) => return Err(e.into()),
         }
     } else {
-        let home = dirs::home_dir().ok_or(eyre!("home directory couldn't be found"))?;
+        let home = dirs::home_dir().ok_or(eyre!("Home directory couldn't be found"))?;
         let config_path = home.join(".config/porcupette.yml");
         let config_path = config_path.to_str().unwrap();
 
@@ -121,7 +123,7 @@ pub fn config_wizard() -> eyre::Result<()> {
     };
 
     serde_yaml::to_writer(f, &config)?;
-    println!("Configuration was written");
+    println!("Configuration is written");
     Ok(())
 }
 
@@ -129,7 +131,7 @@ pub fn read_config() -> eyre::Result<Config> {
     let config_path = if cfg!(windows) {
         "./porcupette.yml".to_string()
     } else {
-        let home = dirs::home_dir().ok_or(eyre!("home directory couldn't be found"))?;
+        let home = dirs::home_dir().ok_or(eyre!("Home directory couldn't be found"))?;
         home.join(".config/porcupette.yml")
             .to_str()
             .unwrap()
