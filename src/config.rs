@@ -35,7 +35,7 @@ pub fn config_wizard() -> eyre::Result<()> {
                     break;
                 }
 
-                println!("Invalid input. y or n needed");
+                println!("\nInvalid input. y or n needed:");
             }
         }
         Err(e) => {

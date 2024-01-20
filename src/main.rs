@@ -87,13 +87,13 @@ fn main() {
         };
         notify("Command execution was successful", notify_short);
     } else {
-        copy_to_clipboard(url).unwrap_or_else(|e| {
+        if let Err(e) = copy_to_clipboard(url) {
             enotify(
                 &format!("Error while copying to clipboard: {e}"),
                 notify_long,
             );
             exit(2);
-        });
+        }
         notify("Copied to clipboard", notify_short);
     }
 }
