@@ -7,6 +7,7 @@ use crate::util::{is_default_browser, set_default_browser};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
     pub notify: bool,
+    pub print: bool,
     pub run_command: bool,
     pub command: String,
 }
@@ -49,6 +50,7 @@ pub fn config_wizard() -> eyre::Result<()> {
 
     let mut config = Config {
         notify: false,
+        print: false,
         run_command: false,
         command: String::new(),
     };
@@ -78,18 +80,25 @@ pub fn config_wizard() -> eyre::Result<()> {
     }
 
     loop {
-        let line = rl.readline("Should I notify you about it? Y/n ")?;
-        let line = line.trim();
+        let line = rl.readline("How should I notify you about it? B/N/P/B\n\
+        B: Both\n\
+        N: Notify -> Notify, but don't print to console. Prevents Porcupette's stdout/stderr from conflicting with other programs (since it can get executed from CLI programs).\n\
+        P: Print -> If notifications don't appear, this might be good for debugging.\n\
+        I: Neither\n")?;
 
-        if line == "y" || line == "Y" || line == "" {
-            config.notify = true;
-            break;
-        } else if line == "n" || line == "N" {
-            config.notify = false;
-            break;
+        match line.trim() {
+            "B" | "b" => {
+                config.notify = true;
+                config.print = true;
+            }
+            "N" | "n" => config.notify = true,
+            "P" | "p" => config.print = true,
+            "I" | "i" => {}
+            _ => {
+                println!("Invalid input. N, P, or B needed.");
+            }
         }
-
-        println!("Invalid input. y or n needed");
+        break;
     }
 
     let f = if cfg!(windows) {
