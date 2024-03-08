@@ -133,7 +133,7 @@ fn copy_to_clipboard(url: String) -> eyre::Result<()> {
     let mut c = copypasta::ClipboardContext::new().map_err(|e| eyre!(e))?;
     c.set_contents(url).map_err(|e| eyre!(e))?;
 
-    c.get_contents();
+    let _ = c.get_contents();
     sleep(Duration::from_millis(600));
     Ok(())
 }
