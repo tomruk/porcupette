@@ -90,6 +90,7 @@ fn main() {
     }
 
     if config.run_command {
+        notify(&format!("Executing: {}", config.command), notify_short);
         if let Err(e) = run_command(url, config.command) {
             enotify(
                 &format!("Error while executing the command: {e}"),
@@ -111,7 +112,6 @@ fn main() {
 }
 
 fn run_command(url: String, mut command: String) -> eyre::Result<()> {
-    println!("Executing: {}", command);
     command
         .find("%U")
         .ok_or(eyre!("%U couldn't be found in the URL"))?;
