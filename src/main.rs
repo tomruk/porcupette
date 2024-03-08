@@ -39,7 +39,7 @@ fn main() {
     let config = match read_config() {
         Ok(config) => config,
         Err(e) => {
-            eprintln!("Error: {:?}", e);
+            eprintln!("porcupette: error: {:?}", e);
             exit(1);
         }
     };
@@ -48,27 +48,39 @@ fn main() {
     let notify_long = Duration::from_secs(12);
 
     let notify = |prompt: &str, timeout: Duration| {
-        println!("{prompt}");
+        if config.print {
+            println!("porcupette: {prompt}");
+        }
         if config.notify {
-            Notification::new()
+            if let Err(e) = Notification::new()
                 .appname("Porcupette")
                 .body(prompt)
                 .timeout(timeout)
                 .show()
-                .unwrap();
+            {
+                if config.print {
+                    eprintln!("porcupette: display of notification failed: {e}");
+                }
+            }
         }
     };
 
     let enotify = |prompt: &str, timeout: Duration| {
-        eprintln!("{prompt}");
+        if config.print {
+            eprintln!("porcupette: {prompt}");
+        }
         if config.notify {
-            Notification::new()
+            if let Err(e) = Notification::new()
                 .appname("Porcupette")
                 .summary("Error!")
                 .body(prompt)
                 .timeout(timeout)
                 .show()
-                .unwrap();
+            {
+                if config.print {
+                    eprintln!("porcupette: display of notification failed: {e}");
+                }
+            }
         }
     };
 
