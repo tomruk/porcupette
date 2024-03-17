@@ -84,11 +84,6 @@ fn main() {
         }
     };
 
-    if !is_http_or_file(&url) {
-        enotify(&format!("The protocol of the URL '{url}' is not one of these types:\nhttp://\nhttps://\nfile://\n\nNo operation was done"), notify_long);
-        exit(1);
-    }
-
     if config.run_command {
         notify(&format!("Executing: {}", config.command), notify_short);
         if let Err(e) = run_command(url, config.command) {
@@ -136,16 +131,4 @@ fn copy_to_clipboard(url: String) -> eyre::Result<()> {
     let _ = c.get_contents();
     sleep(Duration::from_millis(600));
     Ok(())
-}
-
-fn is_http_or_file(url: &str) -> bool {
-    let url = url.to_lowercase();
-
-    // In Porcupine, file:/// protocol is omitted, but Porcupette includes the file protocol.
-    // An attacker might be trying you to execute a local file (somehow) downloaded from web. This seems very unlikely, but still a consideration.
-
-    if url.starts_with("http://") || url.starts_with("https://") || url.starts_with("file://") {
-        return true;
-    }
-    false
 }
